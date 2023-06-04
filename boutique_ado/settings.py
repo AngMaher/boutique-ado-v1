@@ -77,15 +77,15 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
-                'django.template.context_processors.request',  # required by aa
+                'django.template.context_processors.request', # required by allauth
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'bag.contexts.bag_contexts',
+                'django.template.context_processors.media',
+                'bag.contexts.bag_contents',
             ],
-            #give access to crispy forms across all templates by default
             'builtins': [
-                'crispy_forms.templatetags.crispy_form_tags',
-                'crispy_forms.templatetags.crispy_form_field',
+                'crispy_forms.templatetags.crispy_forms_tags',
+                'crispy_forms.templatetags.crispy_forms_field',
             ]
         },
     },
