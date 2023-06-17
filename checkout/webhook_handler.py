@@ -6,7 +6,6 @@ from django.conf import settings
 from .models import Order, OrderLineItem
 from products.models import Product
 from profiles.models import UserProfile
-import stripe
 
 import json
 import time
@@ -17,24 +16,22 @@ class StripeWH_Handler:
     def __init__(self, request):
         self.request = request
 
-    # starts with _ cause will only be used inside this class
     def _send_confirmation_email(self, order):
-        """send the user a confirmation email"""
+        """Send the user a confirmation email"""
         cust_email = order.email
         subject = render_to_string(
             'checkout/confirmation_emails/confirmation_email_subject.txt',
-            {'order':order})
+            {'order': order})
         body = render_to_string(
             'checkout/confirmation_emails/confirmation_email_body.txt',
             {'order': order, 'contact_email': settings.DEFAULT_FROM_EMAIL})
-
+        
         send_mail(
             subject,
             body,
             settings.DEFAULT_FROM_EMAIL,
             [cust_email]
-        )
-
+        )        
 
     def handle_event(self, event):
         """
@@ -49,8 +46,6 @@ class StripeWH_Handler:
         Handle the payment_intent.succeeded webhook from Stripe
         """
         intent = event.data.object
-        print(intent)
-        intent = event.data.object
         pid = intent.id
         bag = intent.metadata.bag
         save_info = intent.metadata.save_info
@@ -64,7 +59,7 @@ class StripeWH_Handler:
             if value == "":
                 shipping_details.address[field] = None
 
-        # Update profile information if save_info checked
+        # Update profile information if save_info was checked
         profile = None
         username = intent.metadata.username
         if username != 'AnonymousUser':
@@ -78,7 +73,7 @@ class StripeWH_Handler:
                 profile.default_street_address2 = shipping_details.address.line2
                 profile.default_county = shipping_details.address.state
                 profile.save()
-    
+
         order_exists = False
         attempt = 1
         while attempt <= 5:
@@ -158,5 +153,5 @@ class StripeWH_Handler:
         Handle the payment_intent.payment_failed webhook from Stripe
         """
         return HttpResponse(
-            content=f'payment failed Webhook received: {event["type"]}',
+            content=f'Webhook received: {event["type"]}',
             status=200)
